@@ -1,6 +1,0 @@
-name = Shortcode Embed Content Tag
-description = "Provides a shortcode tag for embedding a node content into text."
-package = Shortcode
-core = 7.x
-dependencies[] = filter
-dependencies[] = shortcode

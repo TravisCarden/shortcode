@@ -1,6 +1,0 @@
-name = Shortcode Video Macro
-description = Provides easy video embedding to contents. Supports YouTube sharing.
-package = Shortcode
-core = 7.x
-dependencies[] = filter
-dependencies[] = shortcode

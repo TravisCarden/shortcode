@@ -1,0 +1,188 @@
+<?php
+
+/**
+ * @file
+ * Tests for Shortcode module.
+ */
+
+/**
+ * Unit tests for Shortcode.
+ */
+class ShortcodeUnitTestCase extends DrupalUnitTestCase {
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Unit tests',
+      'description' => 'Test Shortcode classes and functions.',
+      'group' => 'Shortcode',
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    drupal_load('module', 'shortcode');
+    parent::setUp();
+  }
+
+  /**
+   * Test shortcode_filter_attributes().
+   */
+  public function testShortcodeFilterAttributes() {
+    $expected = array('foo' => 'foo val', 'bar' => 'bar val');
+    $actual = shortcode_filter_attributes(array(
+      'foo' => 'foo val',
+      'bar' => 'bar val',
+      'baz' => 'baz val',
+      'quz' => 'quz val',
+    ), array('foo', 'bar'));
+    $this->assertEqual($expected, $actual, 'Properly filtered attributes.');
+  }
+
+}
+
+/**
+ * Functional tests for Shortcode.
+ */
+class ShortcodeWebTestCase extends DrupalWebTestCase {
+
+  protected $profile = 'minimal';
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Functional tests',
+      'description' => 'Test Shortcode functionality.',
+      'group' => 'Shortcode',
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    parent::setUp('shortcodetest');
+  }
+
+  /**
+   * Test shortcode_process_shortcodes().
+   */
+  public function testShortcodeProcessShortcodes() {
+    // See shortcodetest_test_process_callback() for an explanation of the
+    // JSON encoding used below.
+    $tests[] = array(
+      shortcode_process_shortcodes('[valid_shortcode/]'),
+      json_encode(array(
+        'tag' => 'valid_shortcode',
+        'attributes' => array(),
+        'content' => '',
+      )),
+      'Correctly processed self-closing tag.',
+    );
+
+    $tests[] = array(
+      shortcode_process_shortcodes('[valid_shortcode][/valid_shortcode]'),
+      json_encode(array(
+        'tag' => 'valid_shortcode',
+        'attributes' => array(),
+        'content' => '',
+      )),
+      'Correctly processed empty tag.',
+    );
+
+    $tests[] = array(
+      shortcode_process_shortcodes('[valid_shortcode foo="foo val" bar="bar val"][/valid_shortcode]'),
+      json_encode(array(
+        'tag' => 'valid_shortcode',
+        'attributes' => array('foo' => 'foo val', 'bar' => 'bar val'),
+        'content' => '',
+      )),
+      'Correctly processed tag with attributes.',
+    );
+
+    $tests[] = array(
+      shortcode_process_shortcodes('[valid_shortcode]Lorem ipsum dolor sit amet.[/valid_shortcode]'),
+      json_encode(array(
+        'tag' => 'valid_shortcode',
+        'attributes' => array(),
+        'content' => 'Lorem ipsum dolor sit amet.',
+      )),
+      'Correctly processed tag with contents.',
+    );
+
+    $tests[] = array(
+      shortcode_process_shortcodes('[valid_shortcode]Lorem ipsum [valid_shortcode] sit amet.[/valid_shortcode]'),
+      json_encode(array(
+        'tag' => 'valid_shortcode',
+        'attributes' => array(),
+        'content' => 'Lorem ipsum [valid_shortcode] sit amet.',
+      )),
+      'Correctly processed nested tags.',
+    );
+
+    $tests[] = array(
+      shortcode_process_shortcodes('[[valid_shortcode/]]'),
+      '[valid_shortcode/]',
+      'Correctly processed escaped self-closing tag.',
+    );
+
+    $tests[] = array(
+      shortcode_process_shortcodes('[[valid_shortcode]Lorem ipsum dolor sit amet.[/valid_shortcode]]'),
+      '[valid_shortcode]Lorem ipsum dolor sit amet.[/valid_shortcode]',
+      'Correctly processed escaped tag with contents.',
+    );
+
+    $tests[] = array(
+      shortcode_process_shortcodes('[[valid_shortcode]Lorem ipsum [valid_shortcode] sit amet.[/valid_shortcode]]'),
+      '[valid_shortcode]Lorem ipsum [valid_shortcode] sit amet.[/valid_shortcode]',
+      'Correctly processed nested escaped tag.',
+    );
+
+    $tests[] = array(
+      shortcode_process_shortcodes('[valid_shortcode foo="foo val" bar="bar val"]Lorem ipsum [valid_shortcode] sit amet.[/valid_shortcode] [[valid_shortcode/]] [valid_shortcode baz="baz val" /]'),
+      json_encode(array(
+        'tag' => 'valid_shortcode',
+        'attributes' => array('foo' => 'foo val', 'bar' => 'bar val'),
+        'content' => 'Lorem ipsum [valid_shortcode] sit amet.',
+      )) . ' [valid_shortcode/] ' . json_encode(array(
+        'tag' => 'valid_shortcode',
+        'attributes' => array('baz' => 'baz val'),
+        'content' => '',
+      )),
+      'Correctly processed multiple different tags in the same input string.',
+    );
+
+    $tests[] = array(
+      shortcode_process_shortcodes('[valid_shortcode/][another_valid_shortcode/]', array('valid_shortcode')),
+      json_encode(array(
+        'tag' => 'valid_shortcode',
+        'attributes' => array(),
+        'content' => '',
+      )) . '[another_valid_shortcode/]',
+      'Correctly processed a subset of tags present in the same input string.',
+    );
+
+    foreach ($tests as $test) {
+      $this->assertEqual($test[0], $test[1], $test[2]);
+    }
+  }
+
+  /**
+   * Test shortcode_get_shortcodes().
+   */
+  public function testShortcodeGetShortcodes() {
+    $all_tags = array_keys(shortcode_get_shortcodes());
+    $this->assertTrue(in_array('valid_shortcode', $all_tags), 'Got valid shortcode.');
+    $this->assertTrue(!in_array('missing_process_callback', $all_tags), 'Removed shortcode definition missing process callback.');
+
+    $subset = array_keys(shortcode_get_shortcodes(array('valid_shortcode', 'nonexistent_shortcode')));
+    $this->assertEqual(array('valid_shortcode'), $subset, 'Got a subset of shortcode definitions.');
+  }
+
+}

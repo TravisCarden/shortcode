@@ -1,0 +1,20 @@
+<?php
+
+/**
+ * @file
+ * Provides a shortcode content filter.
+ */
+
+module_load_include('inc', 'shortcodefilter');
+
+/**
+ * Implements hook_filter_info().
+ */
+function shortcodefilter_filter_info() {
+  $filters['shortcode'] = array(
+    'title' => t('Expand shortcodes'),
+    'process callback' => '_shortcodefilter_filter_process_callback',
+    'tips callback' => '_shortcode_filter_tips_callback',
+  );
+  return $filters;
+}

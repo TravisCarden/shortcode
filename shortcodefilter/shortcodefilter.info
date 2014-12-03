@@ -1,0 +1,4 @@
+name = Shortcode Filter
+description = Provides a shortcode content filter.
+core = 7.x
+dependencies[] = shortcode

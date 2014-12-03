@@ -1,0 +1,6 @@
+name = Shortcode test module
+description = Provides a shortcode implementation of for testing.
+package = Testing
+core = 7.x
+dependencies[] = shortcode
+hidden = TRUE

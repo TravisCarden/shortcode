@@ -1,0 +1,40 @@
+<?php
+
+/**
+ * @file
+ * Provides a shortcode implementation of for testing.
+ */
+
+/**
+ * Implements hook_shortcode_info().
+ */
+function shortcodetest_shortcode_info() {
+  $shortcodes['valid_shortcode'] = array(
+    'title' => t('Valid shortcode'),
+    'syntax' => '[valid_shortcode/]',
+    'process callback' => 'shortcodetest_test_process_callback',
+  );
+  $shortcodes['another_valid_shortcode'] = array(
+    'title' => t('Another valid shortcode'),
+    'syntax' => '[another_valid_shortcode/]',
+    'process callback' => 'shortcodetest_test_process_callback',
+  );
+  $shortcodes['missing_process_callback'] = array();
+  return $shortcodes;
+}
+
+/**
+ * Implements callback_shortcode_process().
+ */
+function shortcodetest_test_process_callback($tag, array $attributes, $content) {
+  // Ordinarily, of course, a callback_shortcode_process() implementation
+  // would return HTML, but this is a sensor designed to let us test the parser.
+  // Output is JSON-encoded because this is a preg_replace_callback() callback,
+  // so its return value will be cast to string, and this gives us the ability
+  // to still compare data structures as such.
+  return json_encode(array(
+    'tag' => $tag,
+    'attributes' => $attributes,
+    'content' => $content,
+  ));
+}
