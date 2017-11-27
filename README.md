@@ -9,8 +9,7 @@
 Shortcode module provides a facility for creating and processing arbitrary
 BBCode-like tags. It was modeled after the [WordPress Shortcode API]
 (http://codex.wordpress.org/Shortcode_API), from which much of its parsing code
-was adapted. (See [shortcodes.php]
-(https://github.com/WordPress/WordPress/blob/4.0/wp-includes/shortcodes.php).)
+was adapted. (See [shortcodes.php](https://github.com/WordPress/WordPress/blob/4.0/wp-includes/shortcodes.php).)
 
 ## Installation
 
