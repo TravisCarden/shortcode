@@ -13,8 +13,7 @@ was adapted. (See [shortcodes.php](https://github.com/WordPress/WordPress/blob/4
 
 ## Installation
 
-Shortcode is installed in the usual way. See [Installing modules (Drupal 7)]
-(https://drupal.org/documentation/install/modules-themes/modules-7).
+Shortcode is installed in the usual way. See [Installing modules (Drupal 7)](https://drupal.org/documentation/install/modules-themes/modules-7).
 
 ## Usage
 
